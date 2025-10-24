@@ -1,0 +1,45 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+*.egg-info/
+dist/
+build/
+
+# Data
+data/*.csv
+data/*.parquet
+
+# Models
+models/*.pkl
+models/*.json
+!models/generate_model.py
+
+# MLflow
+mlruns/
+mlflow.db
+
+# Airflow
+airflow/logs/
+airflow/airflow.db
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+*.coverage.*
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Docker
+.dockerignore

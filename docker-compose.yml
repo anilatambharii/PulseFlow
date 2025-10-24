@@ -1,0 +1,33 @@
+version: '3.9'
+services:
+  mlflow:
+    image: ghcr.io/mlflow/mlflow:latest
+    container_name: mlflow_server
+    ports:
+      - '5000:5000'
+    volumes:
+      - ./mlruns:/mlruns
+    command: mlflow server --backend-store-uri sqlite:///mlflow.db --default-artifact-root ./mlruns --host 0.0.0.0
+
+  fastapi:
+    build: ./deployment
+    container_name: fastapi_app
+    ports:
+      - '8000:8000'
+    depends_on:
+      - mlflow
+    environment:
+      - MLFLOW_TRACKING_URI=http://mlflow:5000
+
+  airflow:
+    image: apache/airflow:2.9.0
+    container_name: airflow
+    environment:
+      - AIRFLOW_HOME=/opt/airflow
+      - LOAD_EX=n
+      - EXECUTOR=SequentialExecutor
+    volumes:
+      - ./airflow/dags:/opt/airflow/dags
+    ports:
+      - '8080:8080'
+    command: bash -c 'airflow db init && airflow webserver & airflow scheduler'
