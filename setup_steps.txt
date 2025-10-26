@@ -1,0 +1,162 @@
+cd C:\Users\anils\projects\enterprise-mlops-pipeline
+rmdir /s /q .venv
+python -m venv .venv
+.venv\Scripts\activate
+
+pip install --upgrade pip setuptools wheel
+pip install -r requirements.txt
+
+# Generate the trained model (required for API)
+python models/generate_model.py
+
+#Expected output:
+Generating sample dataset...
+Dataset shape: (1000, 2)
+Training Random Forest model...
+Train R² Score: 0.9845
+Test R² Score: 0.9823
+
+Model saved to: models/saved_model.pkl
+Model file size: 145.23 KB
+
+#Step 3: Run ETL Pipeline
+# Step 3a: Data ingestion
+python etl/data_ingestion.py
+
+#Expected output:
+sample.csv not found — generating mock dataset...
+Loading data from data/sample.csv...
+Loaded 100 records.
+Data saved to data/intermediate.parquet
+
+# Step 3b: Data preprocessing
+python etl/data_preprocessing.py
+
+#Expected output:
+Preprocessing data from data/intermediate.parquet...
+Scaling columns: ['feature1', 'feature2']
+Preprocessed data saved to data/processed.parquet
+
+#Step 4: Train Model with MLflow Tracking (Optional)
+# Step 4a: Start MLflow server in background
+mlflow ui &
+
+# Wait a few seconds, then open browser to http://localhost:5000
+
+Step 2: Open a New Command Prompt
+Open a new terminal window and navigate to your project directory:
+
+bash
+cd C:\Users\anils\projects\enterprise-mlops-pipeline
+Step 3: Activate the Same Virtual Environment
+Reactivate your virtual environment:
+
+bash
+.venv\Scripts\activate
+Step 4: Run the MLflow Setup Script
+Once inside the virtual environment, execute:
+
+bash
+python mlflow/mlflow_setup.py
+
+# Step 4b: Setup MLflow experiment
+python mlflow/mlflow_setup.py
+
+#This script likely registers experiments, initializes tracking URIs, or configures your run environment within MLflow. Because you have the MLflow UI running in a separate terminal, this script will now connect to the live tracking server.
+
+#Expected output:
+
+Starting MLflow setup...
+
+Step 1: Verifying MLflow connection...
+✓ Successfully connected to MLflow at http://localhost:5000
+  Found 1 experiment(s)
+
+Step 2: Setting up experiment...
+✓ Experiment already exists: enterprise_mlops_training
+✓ Artifact location: ./mlruns
+
+Step 3: Creating model registry...
+✓ Created new registered model: enterprise_mlops_rf_model
+
+Step 4: Logging sample run...
+✓ Sample run logged successfully
+
+# Step 4c: Train model with MLflow tracking
+python training/train_model.py
+
+#Expected output:
+Loading processed data from data/processed.parquet...
+Dataset shape: (100, 2)
+Training set: (80, 2), Test set: (20, 2)
+Training Random Forest model...
+Model Performance:
+  MSE: 0.0234
+  MAE: 0.1156
+  R2 Score: 0.9876
+Model saved to models/saved_model.pkl
+
+
+
+#Step 5: Evaluate Model
+
+python training/evaluate_model.py
+
+#Expected output:
+
+Loading model from models/saved_model.pkl...
+Loading evaluation data from data/processed.parquet...
+Evaluating model on 100 samples...
+
+Evaluation Results:
+  MSE: 0.0234
+  MAE: 0.1156
+  RMSE: 0.1529
+  R2 Score: 0.9876
+
+Metrics saved to models/metrics.json
+
+------------- deployment steps now ------------
+
+Step 6: Start FastAPI Service
+
+# Start the API server
+uvicorn deployment.app.main:app --reload --host 0.0.0.0 --port 8000
+Expected output:
+
+INFO:     Will watch for changes in these directories: ['/path/to/enterprise-mlops-pipeline']
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     Started reloader process
+INFO:     Started server process
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+
+Step 7: Test the API
+Open a new terminal window (keep the API running) and test:
+
+# Test health endpoint
+curl http://localhost:8000/health
+
+# Test single prediction
+curl -X POST "http://localhost:8000/predict" \
+  -H "Content-Type: application/json" \
+  -d '{"features": {"feature1": 50.0, "feature2": 75.0}}'
+
+# Test batch prediction
+curl -X POST "http://localhost:8000/predict/batch" \
+  -H "Content-Type: application/json" \
+  -d '{"data": [{"feature1": 50.0, "feature2": 75.0}, {"feature1": 30.0, "feature2": 45.0}]}'
+
+
+Step 8: Run Tests
+
+# Run all tests
+pytest ci_cd/tests/ -v
+
+# Run with coverage report
+pytest ci_cd/tests/ -v --cov=. --cov-report=html
+
+# Open coverage report
+open htmlcov/index.html  # macOS
+xdg-open htmlcov/index.html  # Linux
+start htmlcov/index.html  # Windows

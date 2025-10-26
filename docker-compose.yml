@@ -7,13 +7,15 @@ services:
       - '5000:5000'
     volumes:
       - ./mlruns:/mlruns
-    command: mlflow server --backend-store-uri sqlite:///mlflow.db --default-artifact-root ./mlruns --host 0.0.0.0
+    command: mlflow server --backend-store-uri sqlite:///mlflow.db --default-artifact-root /mlruns --host 0.0.0.0
 
   fastapi:
     build: ./deployment
     container_name: fastapi_app
     ports:
       - '8000:8000'
+    volumes:
+      - ./models:/app/models
     depends_on:
       - mlflow
     environment:
@@ -23,11 +25,15 @@ services:
     image: apache/airflow:2.9.0
     container_name: airflow
     environment:
-      - AIRFLOW_HOME=/opt/airflow
-      - LOAD_EX=n
-      - EXECUTOR=SequentialExecutor
+      - AIRFLOW__CORE__EXECUTOR=LocalExecutor
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=sqlite:////opt/airflow/airflow.db
+      - AIRFLOW__CORE__LOAD_EXAMPLES=False
     volumes:
       - ./airflow/dags:/opt/airflow/dags
+      - ./airflow/logs:/opt/airflow/logs
     ports:
       - '8080:8080'
-    command: bash -c 'airflow db init && airflow webserver & airflow scheduler'
+    command: >
+      bash -c "airflow db init &&
+               airflow users create --username admin --password admin --firstname Admin --lastname User --role Admin --email admin@example.com &&
+               airflow webserver"

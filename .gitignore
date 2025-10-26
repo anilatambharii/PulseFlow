@@ -41,5 +41,5 @@ htmlcov/
 *.swo
 .DS_Store
 
-# Docker
-.dockerignore
+# Environment
+.env
