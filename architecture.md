@@ -1,6 +1,6 @@
 # Enterprise MLOps Pipeline Overview
 
-![Enterprise MLOps Architecture](mlops_demo_architecture.png)
+![Enterprise MLOps Architecture](mlops_architecture.png)
 
 ## Pipeline Summary
 
