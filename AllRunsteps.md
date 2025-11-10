@@ -26,7 +26,7 @@ pip install -r requirements.txt
 ## ETL & Modeling Pipeline
 | Step | Script / Command | Location / Purpose | Description of What It Does |
 |------|------------------|--------------------|-----------------------------|
-| 1 | `python data_ingestion/data_loader.py` | Reads raw data (`data/sample.csv`) | Loads data, cleans, encodes, splits to train/test, outputs `data/processed.parquet`. |
+| 1 | `python data_loader.py` | Reads raw data (`data/sample.csv`) | Loads data, cleans, encodes, splits to train/test, outputs `data/processed.parquet`. |
 | 2 | `python models/train_model.py` | Model training | Reads processed data, trains ML (e.g., regression), saves to `models/saved_model.pkl`. |
 | 3 | `python evaluation/evaluate_model.py` | Model evaluation | Loads model & test data, outputs metrics (`models/metrics.json`). |
 
