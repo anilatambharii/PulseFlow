@@ -17,7 +17,7 @@ python -m venv .venv
 # On Unix/Mac:
 source .venv/bin/activate
 # On Windows:
-.venv\Scriptsctivate
+.venv\Scripts\Activate
 pip install -r requirements.txt
 ```
 
