@@ -1,3 +1,4 @@
+[![Read the Launch Post](https://img.shields.io/badge/DEV.to-Read%20the%20Launch%20Post-0A0A0A?style=for-the-badge&logo=devdotto)](https://dev.to/anilatambharii/i-open-sourced-a-production-mlops-pipeline-here-is-what-it-took-to-get-it-to-pypi-and-hugging-face-2d0d)
 # Enterprise MLOps Pipeline
 
 This repository provides a production-ready MLOps template for building and deploying machine learning pipelines in enterprise environments.
